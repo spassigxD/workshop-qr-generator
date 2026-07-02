@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workshop QR-Code Generator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/umbuzoo-logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="app-header no-print">
+    <div class="wrap header-inner">
+      <a class="brand" href="https://www.umbuzoo.de" target="_blank" rel="noopener">
+        <img src="assets/umbuzoo-logo.svg" alt="Umbuzoo" class="brand-logo" />
+      </a>
+      <div class="header-titles">
+        <h1>Workshop QR-Code Generator</h1>
+        <p class="subtitle">Workshops &amp; Bezirke auswählen, URLs und QR-Codes erzeugen und drucken.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap no-print">
+    <!-- Auswahl -->
+    <section class="card">
+      <div class="selection-grid">
+        <div class="select-panel">
+          <div class="panel-head">
+            <h2>Workshops</h2>
+            <div class="panel-actions">
+              <button type="button" class="link-btn" data-select-all="workshops">Alle</button>
+              <button type="button" class="link-btn" data-select-none="workshops">Keine</button>
+            </div>
+          </div>
+          <div id="workshop-list" class="checkbox-list" aria-label="Workshops auswählen"></div>
+        </div>
+
+        <div class="select-panel">
+          <div class="panel-head">
+            <h2>Bezirke</h2>
+            <div class="panel-actions">
+              <button type="button" class="link-btn" data-select-all="areas">Alle</button>
+              <button type="button" class="link-btn" data-select-none="areas">Keine</button>
+            </div>
+          </div>
+          <div id="area-list" class="checkbox-list" aria-label="Bezirke auswählen"></div>
+        </div>
+      </div>
+
+      <div class="generate-bar">
+        <div class="count-info" id="count-info">Keine Auswahl</div>
+        <div class="btn-group">
+          <button type="button" id="btn-generate" class="btn btn-primary">QR-Codes erzeugen</button>
+          <button type="button" id="btn-print" class="btn" disabled>Drucken</button>
+          <button type="button" id="btn-pdf" class="btn" disabled>PDF herunterladen</button>
+          <button type="button" id="btn-csv" class="btn" disabled>URLs als CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Einstellungen -->
+    <section class="card">
+      <details id="settings-details">
+        <summary><h2 class="inline-h2">Einstellungen</h2></summary>
+        <div class="settings-body">
+          <label class="field">
+            <span class="field-label">Basis-URL</span>
+            <input type="text" id="base-url" class="text-input" spellcheck="false" />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Parameter Workshop</span>
+              <input type="text" id="param-workshop" class="text-input" spellcheck="false" />
+            </label>
+            <label class="field">
+              <span class="field-label">Parameter Bezirk</span>
+              <input type="text" id="param-area" class="text-input" spellcheck="false" />
+            </label>
+          </div>
+          <p class="hint" id="url-preview-hint"></p>
+          <div class="settings-actions">
+            <button type="button" id="btn-reset-data" class="btn btn-danger-outline">Alles auf Standard zurücksetzen</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Verwaltung -->
+    <section class="card">
+      <details id="manage-details">
+        <summary><h2 class="inline-h2">Workshops &amp; Bezirke verwalten</h2></summary>
+        <div class="manage-grid">
+          <div class="manage-panel">
+            <h3>Workshops</h3>
+            <ul id="manage-workshops" class="manage-list"></ul>
+            <form class="add-form" data-add="workshops">
+              <input type="text" class="text-input" placeholder="Neuer Workshop…" aria-label="Neuer Workshop" />
+              <button type="submit" class="btn btn-small">Hinzufügen</button>
+            </form>
+          </div>
+          <div class="manage-panel">
+            <h3>Bezirke</h3>
+            <ul id="manage-areas" class="manage-list"></ul>
+            <form class="add-form" data-add="areas">
+              <input type="text" class="text-input" placeholder="Neuer Bezirk…" aria-label="Neuer Bezirk" />
+              <button type="submit" class="btn btn-small">Hinzufügen</button>
+            </form>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Vorschau-Kopf -->
+    <section class="card" id="preview-card" hidden>
+      <div class="preview-head">
+        <h2 class="inline-h2">Vorschau</h2>
+        <div class="preview-controls">
+          <label class="field inline">
+            <span class="field-label">Spalten (Druck)</span>
+            <select id="cols-select" class="text-input select">
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+            </select>
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="show-url-toggle" />
+            <span>URL anzeigen</span>
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Druckbereich (auch Bildschirm-Vorschau) -->
+  <section id="print-area" class="print-area cols-3" aria-live="polite"></section>
+
+  <script src="libs/qrcode.min.js"></script>
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
