@@ -7,6 +7,7 @@
    ============================================================ */
 
 const STORAGE_KEY = "wqg.state.v1";
+const SESSION_KEY = "wqg.session.v1";
 
 const DEFAULTS = {
   workshops: [
@@ -215,6 +216,7 @@ function updateCount() {
   }
   el.btnGenerate.disabled = combos === 0;
   updateUrlHint();
+  saveSession();
 }
 
 /* ---------------- Rendering: management lists ---------------- */
@@ -307,13 +309,21 @@ function getCombos() {
 }
 
 function generate() {
-  lastCombos = getCombos();
-  if (lastCombos.length === 0) return;
+  const combos = getCombos();
+  if (combos.length === 0) return;
+  lastCombos = combos;
 
+  renderCards(lastCombos, el.showUrlToggle.checked);
+  showResultUI();
+  saveSession();
+
+  el.previewCard.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderCards(combos, showUrl) {
   el.printArea.innerHTML = "";
-  const showUrl = el.showUrlToggle.checked;
 
-  lastCombos.forEach(({ workshop, area, url }) => {
+  combos.forEach(({ workshop, area, url }) => {
     const qr = makeQr(url);
 
     const card = document.createElement("div");
@@ -370,13 +380,62 @@ function generate() {
     card.appendChild(labels);
     el.printArea.appendChild(card);
   });
+}
 
+function showResultUI() {
   el.previewCard.hidden = false;
   el.btnPrint.disabled = false;
   el.btnPdf.disabled = false;
   el.btnCsv.disabled = false;
+}
 
-  el.previewCard.scrollIntoView({ behavior: "smooth", block: "start" });
+/* ---------------- Session (gespeichertes Ergebnis) ---------------- */
+
+function saveSession() {
+  try {
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        workshops: [...selected.workshops],
+        areas: [...selected.areas],
+        cols: el.colsSelect.value,
+        showUrl: el.showUrlToggle.checked,
+        combos: lastCombos,
+      })
+    );
+  } catch (e) {
+    console.warn("Session konnte nicht gespeichert werden:", e);
+  }
+}
+
+function restoreSession() {
+  let s = null;
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) s = JSON.parse(raw);
+  } catch (e) {
+    console.warn("Session konnte nicht geladen werden:", e);
+  }
+  if (!s) return;
+
+  (s.workshops || []).forEach((n) => {
+    if (state.workshops.includes(n)) selected.workshops.add(n);
+  });
+  (s.areas || []).forEach((n) => {
+    if (state.areas.includes(n)) selected.areas.add(n);
+  });
+  if (s.cols) el.colsSelect.value = String(s.cols);
+  if (typeof s.showUrl === "boolean") el.showUrlToggle.checked = s.showUrl;
+  if (Array.isArray(s.combos)) lastCombos = s.combos;
+}
+
+function clearSession() {
+  lastCombos = [];
+  try {
+    localStorage.removeItem(SESSION_KEY);
+  } catch (e) {
+    /* ignore */
+  }
 }
 
 function setCols(n) {
@@ -598,9 +657,13 @@ function initEvents() {
     });
   });
 
-  el.colsSelect.addEventListener("change", () => setCols(el.colsSelect.value));
+  el.colsSelect.addEventListener("change", () => {
+    setCols(el.colsSelect.value);
+    saveSession();
+  });
   el.showUrlToggle.addEventListener("change", () => {
-    if (lastCombos.length) generate();
+    if (lastCombos.length) renderCards(lastCombos, el.showUrlToggle.checked);
+    saveSession();
   });
 
   el.btnReset.addEventListener("click", () => {
@@ -608,7 +671,7 @@ function initEvents() {
     state = structuredCloneSafe(DEFAULTS);
     selected.workshops.clear();
     selected.areas.clear();
-    lastCombos = [];
+    clearSession();
     saveState();
     initSettings();
     renderSelectionLists();
@@ -625,10 +688,16 @@ function initEvents() {
 
 function init() {
   initSettings();
+  restoreSession();
   renderSelectionLists();
   renderManageLists();
   initEvents();
   setCols(el.colsSelect.value);
+
+  if (lastCombos.length) {
+    renderCards(lastCombos, el.showUrlToggle.checked);
+    showResultUI();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);
