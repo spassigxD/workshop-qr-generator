@@ -118,6 +118,7 @@ h3 { font-size: 1rem; font-weight: 600; margin: 0 0 10px; color: var(--brand); }
   gap: 2px;
   max-height: 280px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 6px;
