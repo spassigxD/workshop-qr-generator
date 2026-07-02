@@ -340,10 +340,30 @@ function generate() {
     labels.appendChild(lw);
     labels.appendChild(la);
     if (showUrl) {
-      const lu = document.createElement("div");
-      lu.className = "lbl-url";
-      lu.textContent = url;
-      labels.appendChild(lu);
+      const urlRow = document.createElement("div");
+      urlRow.className = "url-row";
+
+      const link = document.createElement("a");
+      link.className = "lbl-url";
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = url;
+      link.title = "Link in neuem Tab öffnen";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "copy-btn no-print";
+      copyBtn.textContent = "Kopieren";
+      copyBtn.title = "URL in die Zwischenablage kopieren";
+      copyBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        copyToClipboard(url, copyBtn);
+      });
+
+      urlRow.appendChild(link);
+      urlRow.appendChild(copyBtn);
+      labels.appendChild(urlRow);
     }
 
     card.appendChild(holder);
@@ -488,6 +508,48 @@ function exportCsv() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
+}
+
+/* ---------------- Clipboard ---------------- */
+
+function copyToClipboard(text, btn) {
+  const done = () => flashCopied(btn);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.top = "-1000px";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand("copy");
+    done();
+  } catch (e) {
+    console.warn("Kopieren fehlgeschlagen:", e);
+  }
+  document.body.removeChild(ta);
+}
+
+function flashCopied(btn) {
+  if (!btn) return;
+  const prev = btn.dataset.label || btn.textContent;
+  btn.dataset.label = prev;
+  btn.textContent = "Kopiert!";
+  btn.classList.add("copied");
+  clearTimeout(btn._copyTimer);
+  btn._copyTimer = setTimeout(() => {
+    btn.textContent = btn.dataset.label;
+    btn.classList.remove("copied");
+  }, 1400);
 }
 
 function csvCell(v) {
