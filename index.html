@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <div class="content-wrap">
   <header class="app-header no-print">
     <div class="wrap header-inner">
       <a class="brand" href="https://www.umbuzoo.de" target="_blank" rel="noopener">
@@ -80,7 +81,6 @@
               <input type="text" id="param-area" class="text-input" spellcheck="false" />
             </label>
           </div>
-          <p class="hint" id="url-preview-hint"></p>
           <div class="settings-actions">
             <button type="button" id="btn-reset-data" class="btn btn-danger-outline">Alles auf Standard zurücksetzen</button>
           </div>
@@ -137,6 +137,7 @@
 
   <!-- Druckbereich (auch Bildschirm-Vorschau) -->
   <section id="print-area" class="print-area cols-3" aria-live="polite"></section>
+  </div><!-- /.content-wrap -->
 
   <footer class="app-footer no-print">
     <div class="wrap">

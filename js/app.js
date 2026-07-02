@@ -156,7 +156,6 @@ const el = {
   baseUrl: document.getElementById("base-url"),
   paramWorkshop: document.getElementById("param-workshop"),
   paramArea: document.getElementById("param-area"),
-  urlHint: document.getElementById("url-preview-hint"),
   btnReset: document.getElementById("btn-reset-data"),
   printArea: document.getElementById("print-area"),
   previewCard: document.getElementById("preview-card"),
@@ -215,7 +214,6 @@ function updateCount() {
       `${w} Workshop(s) × ${a} Bezirk(e) = ${combos} QR-Code${combos === 1 ? "" : "s"}`;
   }
   el.btnGenerate.disabled = combos === 0;
-  updateUrlHint();
   saveSession();
 }
 
@@ -274,24 +272,15 @@ function initSettings() {
   el.baseUrl.addEventListener("input", () => {
     state.baseUrl = el.baseUrl.value;
     saveState();
-    updateUrlHint();
   });
   el.paramWorkshop.addEventListener("input", () => {
     state.paramWorkshop = el.paramWorkshop.value || "workshop";
     saveState();
-    updateUrlHint();
   });
   el.paramArea.addEventListener("input", () => {
     state.paramArea = el.paramArea.value || "area";
     saveState();
-    updateUrlHint();
   });
-}
-
-function updateUrlHint() {
-  const w = selected.workshops.size ? [...selected.workshops][0] : state.workshops[0] || "Workshop";
-  const a = selected.areas.size ? [...selected.areas][0] : state.areas[0] || "Bezirk";
-  el.urlHint.textContent = "Beispiel: " + buildUrl(w, a);
 }
 
 /* ---------------- Generate & render QR cards ---------------- */

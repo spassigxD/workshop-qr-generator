@@ -28,7 +28,13 @@ body {
   line-height: 1.6;
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+.content-wrap { flex: 1 0 auto; }
+.app-footer { flex-shrink: 0; }
 
 .wrap {
   max-width: 960px;
@@ -392,7 +398,8 @@ select.select { width: auto; }
 }
 @media print {
   .no-print { display: none !important; }
-  body { background: #fff; }
+  body { background: #fff; display: block; }
+  .content-wrap { display: block; }
   .print-area {
     max-width: none;
     margin: 0;
